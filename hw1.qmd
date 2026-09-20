@@ -6,3 +6,184 @@ editor: visual
 ---
 
 This is the link to the repo: https://github.com/YifengHuang-Bob/Homework1
+
+
+# Problem 1 - Exploratory Analysis of Soybean Cultivars
+
+## a.
+
+```{r}
+soybean <- read.csv("data/data.csv")
+
+names(soybean) <- c(
+  "Season", "Cultivar", "Repetition", "PH", "IFP", "NLP",
+  "NGP", "NGL", "NS", "MHG", "GY"
+)
+
+class(soybean)
+names(soybean)
+```
+\
+
+## b.
+
+```{r}
+nrow(soybean)
+
+length(unique(soybean$Cultivar))
+
+length(unique(soybean$Season))
+
+table(soybean$Season)
+
+```
+The dataset contains 320 observations, 40 distinct cultivars, and observations from 2 seasons. There are 160 observations from Season 1 and 160 observations from Season 2.
+
+\
+
+## c.
+
+### 1.
+
+```{r}
+cor(soybean$PH, soybean$GY)
+```
+The correlation between plant height (PH) and grain yield (GY) is approximately 0.123.
+
+
+### 2.
+
+```{r}
+cor(
+  soybean$PH[soybean$Season == 1],
+  soybean$GY[soybean$Season == 1]
+)
+
+cor(
+  soybean$PH[soybean$Season == 2],
+  soybean$GY[soybean$Season == 2]
+)
+```
+The correlation between PH and GY is approximately 0.231 for Season 1 and -0.023 for Season 2. Therefore, Season 1 has the higher correlation.
+
+
+### 3.
+
+```{r}
+soybean$GY[which.max(soybean$PH)]
+```
+The grain yield of the soybean observation with the greatest plant height is 3304.678.
+
+
+### 4.
+
+```{r}
+mean_mhg <- mean(soybean$MHG)
+
+mean_mhg
+
+mean(soybean$MHG > mean_mhg) * 100
+```
+47.1875% of the observations have an MHG greater than the overall average MHG.
+
+
+### 5.
+
+```{r}
+mean_gy_by_cultivar <- tapply(
+  soybean$GY,
+  soybean$Cultivar,
+  mean
+)
+
+mean_gy_by_cultivar[which.max(mean_gy_by_cultivar)]
+```
+The cultivar with the highest average grain yield is 98R30 CE, with an average grain yield of 3964.968.
+
+
+\
+
+
+## d.
+
+```{r}
+quantitative_vars <- c(
+  "PH", "IFP", "NLP", "NGP", "NGL", "NS", "MHG", "GY"
+)
+
+average_table <- rbind(
+  Overall = colMeans(soybean[quantitative_vars]),
+  `Season 1` = colMeans(
+    soybean[soybean$Season == 1, quantitative_vars]
+  ),
+  `Season 2` = colMeans(
+    soybean[soybean$Season == 2, quantitative_vars]
+  )
+)
+
+round(average_table, 2)
+```
+
+\
+
+## e.
+
+### 1.
+
+Let $\mu_1$ be the mean grain yield (GY) for Season 1 and $\mu_2$ be the mean grain yield for Season 2.
+
+$H_0: \mu_1 = \mu_2$
+
+$H_A: \mu_1 \neq \mu_2$
+
+
+### 2.
+
+```{r}
+t.test(
+  soybean$GY[soybean$Season == 1],
+  soybean$GY[soybean$Season == 2]
+)
+```
+
+#### Manual calculation
+
+```{r}
+gy1 <- soybean$GY[soybean$Season == 1]
+gy2 <- soybean$GY[soybean$Season == 2]
+
+n1 <- length(gy1)
+n2 <- length(gy2)
+
+mean1 <- mean(gy1)
+mean2 <- mean(gy2)
+
+var1 <- var(gy1)
+var2 <- var(gy2)
+
+t_stat <- (mean1 - mean2) /
+  sqrt(var1 / n1 + var2 / n2)
+
+df <- (var1 / n1 + var2 / n2)^2 /
+  ((var1 / n1)^2 / (n1 - 1) +
+     (var2 / n2)^2 / (n2 - 1))
+
+p_value <- 2 * pt(-abs(t_stat), df = df)
+
+t_stat
+df
+p_value
+
+```
+
+
+The mean grain yield is 3428.452 for Season 1 and 3408.655 for Season 2. The Welch two-sample t-test gives a p-value of 0.7255. Since the p-value is greater than 0.05, we fail to reject the null hypothesis. There is insufficient evidence to conclude that the mean grain yield differs between the two seasons.
+
+
+
+
+
+
+
+
+
