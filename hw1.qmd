@@ -7,6 +7,7 @@ editor: visual
 
 This is the link to the repo: https://github.com/YifengHuang-Bob/Homework1
 
+\
 
 # Problem 1 - Exploratory Analysis of Soybean Cultivars
 
@@ -281,9 +282,155 @@ nrow(adult_clean)
 ```
 The final sample size is 29,523 observations.
 
+\
 
+# Problem 3 - Happy Numbers
 
+## a.
 
+```{r}
+#' Compute the next value in a happy-number sequence
+#'
+#' Given a positive integer, this function computes the sum of the
+#' squares of its digits.
+#'
+#' @param n A positive integer.
+#' @return A positive integer equal to the sum of the squared digits of `n`.
+#'
+#' @examples
+#' nextHappy(19)
+#' nextHappy(82)
+
+nextHappy <- function(n) {
+  if (
+    length(n) != 1 ||
+      !is.numeric(n) ||
+      is.na(n) ||
+      !is.finite(n) ||
+      n <= 0 ||
+      n %% 1 != 0
+  ) {
+    stop("n must be a positive integer.")
+  }
+
+  digits <- as.numeric(strsplit(as.character(n), "")[[1]])
+
+  sum(digits^2)
+}
+
+nextHappy(19)
+nextHappy(82)
+```
+
+\
+
+## b.
+
+```{r}
+#' Generate a happy-number sequence
+#'
+#' Starting from a positive integer, this function repeatedly applies
+#' `nextHappy()` until the sequence reaches 1 or enters a cycle.
+#'
+#' @param n A positive integer.
+#' @return A list containing the happy-number sequence and `isHappy = TRUE`
+#' if the input is happy; otherwise, a list containing `isHappy = FALSE`.
+#'
+#' @examples
+#' happySequence(19)
+#' happySequence(4)
+
+happySequence <- function(n) {
+  if (
+    length(n) != 1 ||
+      !is.numeric(n) ||
+      is.na(n) ||
+      !is.finite(n) ||
+      n <= 0 ||
+      n %% 1 != 0
+  ) {
+    stop("n must be a positive integer.")
+  }
+
+  sequence <- n
+  current <- n
+
+  while (current != 1) {
+    current <- nextHappy(current)
+
+    if (current %in% sequence) {
+      return(list(isHappy = FALSE))
+    }
+
+    sequence <- c(sequence, current)
+  }
+
+  list(
+    sequence = sequence,
+    isHappy = TRUE
+  )
+}
+
+```
+### Example 1
+
+```{r}
+happySequence(19)
+```
+
+### Example 2
+
+```{r}
+happySequence(4)
+```
+
+\
+
+## c.
+
+### (a)
+
+```{r}
+numbers <- 1:1000
+
+happy_results <- lapply(numbers, happySequence)
+
+is_happy <- sapply(
+  happy_results,
+  function(x) x$isHappy
+)
+
+sum(is_happy)
+```
+
+There are 143 happy numbers among the integers from 1 through 1000.
+
+### (b)
+
+```{r}
+mean(is_happy) * 100
+```
+
+Happy numbers make up 14.3% of the integers from 1 through 1000.
+
+### (c)
+
+```{r}
+happy_numbers <- numbers[is_happy]
+
+sequence_lengths <- sapply(
+  happy_results[is_happy],
+  function(x) length(x$sequence)
+)
+
+max_length <- max(sequence_lengths)
+
+happy_numbers[sequence_lengths == max_length]
+
+max_length
+```
+
+The longest happy sequences have length 7. The starting values that produce these sequences are 356, 365, 379, 397, 469, 496, 536, 563, 635, 649, 653, 694, 739, 793, 899, 937, 946, 964, 973, 989, and 998.
 
 
 
