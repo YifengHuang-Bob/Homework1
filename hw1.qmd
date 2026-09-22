@@ -179,6 +179,114 @@ p_value
 
 The mean grain yield is 3428.452 for Season 1 and 3408.655 for Season 2. The Welch two-sample t-test gives a p-value of 0.7255. Since the p-value is greater than 0.05, we fail to reject the null hypothesis. There is insufficient evidence to conclude that the mean grain yield differs between the two seasons.
 
+\
+
+# Problem 2 - Adult Income Dataset
+
+## a.
+
+```{r}
+adult <- read.csv(
+  "data/adult.data",
+  header = FALSE,
+  strip.white = TRUE,
+  na.strings = "?"
+)
+
+class(adult)
+dim(adult)
+```
+
+\
+
+## b.
+
+```{r}
+names(adult) <- c(
+  "age", "workclass", "fnlwgt", "education", "education_num",
+  "marital_status", "occupation", "relationship", "race", "sex",
+  "capital_gain", "capital_loss", "hours_per_week",
+  "native_country", "income"
+)
+
+names(adult)
+```
+
+\
+
+## c.
+
+```{r}
+colSums(is.na(adult))
+```
+Missing values occur only in `workclass`, `occupation`, and `native_country`. There are 1836 missing observations for `workclass`, 1843 for `occupation`, and 583 for `native_country`. All other variables have no missing observations.
+
+\
+
+## d.
+
+```{r}
+nrow(adult)
+
+adult_filtered <- adult[adult$hours_per_week >= 10, ]
+
+nrow(adult_filtered)
+```
+The sample size is 32,561 before filtering and 32,103 after restricting the sample to individuals working at least 10 hours per week.
+
+\
+
+## e.
+
+```{r}
+nrow(adult_filtered)
+
+adult_complete <- adult_filtered[
+  !is.na(adult_filtered$occupation) &
+    !is.na(adult_filtered$workclass) &
+    !is.na(adult_filtered$native_country),
+]
+
+nrow(adult_complete)
+
+colSums(
+  is.na(
+    adult_complete[c("occupation", "workclass", "native_country")]
+  )
+)
+```
+Observations with missing values in occupation, workclass, or native_country were removed because these variables are needed for the analysis, and observations with missing values in these fields would have incomplete information.
+
+\
+
+## f.
+
+```{r}
+adult_clean <- adult_complete[
+  adult_complete$age >= 18 &
+    adult_complete$age <= 90 &
+    adult_complete$education != "Preschool",
+]
+
+range(adult_clean$age)
+sum(adult_clean$education == "Preschool")
+```
+
+\
+
+## g.
+
+```{r}
+nrow(adult_clean)
+```
+The final sample size is 29,523 observations.
+
+
+
+
+
+
+
 
 
 
